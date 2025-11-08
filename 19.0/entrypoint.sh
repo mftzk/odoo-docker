@@ -31,6 +31,12 @@ check_config "db_password" "$PASSWORD"
 ODOO_CMD_ARGS=()
 if [[ "${INIT,,}" == "true" ]]; then
     ODOO_CMD_ARGS+=("--init" "base")
+    if [[ -n "${DB_NAME}" ]]; then
+        ODOO_CMD_ARGS+=("-d" "${DB_NAME}")
+    fi
+    echo "INIT=true: Adding --init base and -d ${DB_NAME} to command"
+else
+    echo "INIT not set to true. Current value: '${INIT}'"
 fi
 
 case "$1" in
