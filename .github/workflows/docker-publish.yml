@@ -26,9 +26,6 @@ jobs:
       # with sigstore/fulcio when running outside of PRs.
       id-token: write
 
-    strategy:
-      matrix:
-        odoo_version: ["17.0", "18.0", "19.0"]
 
     steps:
       - name: Checkout repository
@@ -39,10 +36,10 @@ jobs:
 
       - name: Verify build context exists
         run: |
-          echo "Building Odoo version: ${{ matrix.odoo_version }}"
-          ls -la ${{ matrix.odoo_version }}/
-          if [ ! -d "${{ matrix.odoo_version }}" ]; then
-            echo "Directory ${{ matrix.odoo_version }} not found!"
+          echo "Building Odoo version: 19.0"
+          ls -la 19.0/
+          if [ ! -d "19.0" ]; then
+            echo "Directory 19.0 not found!"
             exit 1
           fi
 
@@ -65,15 +62,15 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
             type=raw,value=latest,enable={{is_default_branch}}
-            type=raw,value=${{ matrix.odoo_version }},enable={{is_default_branch}}
-            type=raw,value=${{ matrix.odoo_version }}-{{sha}},enable={{is_default_branch}}
+            type=raw,value=19.0,enable={{is_default_branch}}
+            type=raw,value=19.0-{{sha}},enable={{is_default_branch}}
 
       - name: Build and push Docker image
         id: build-and-push
         uses: docker/build-push-action@v5
         with:
-          context: ${{ matrix.odoo_version }}
-          platforms: linux/amd64,linux/arm64
+          context: 19.0
+          platforms: linux/amd64
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}

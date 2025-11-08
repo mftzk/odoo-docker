@@ -57,7 +57,7 @@ try:
         sys.exit(0)  # Database is initialized
     else:
         sys.exit(1)  # Database exists but not fully initialized
-except psycopg2.errors.InvalidCatalogNameError:
+except psycopg2.errors.InvalidCatalogName:
     sys.exit(1)  # Database doesn't exist
 except Exception as e:
     sys.exit(1)  # Any other error, assume not initialized
