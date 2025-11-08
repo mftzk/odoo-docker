@@ -28,11 +28,57 @@ check_config "db_port" "$PORT"
 check_config "db_user" "$USER"
 check_config "db_password" "$PASSWORD"
 
+# Function to check if database is initialized
+check_db_initialized() {
+    local db_name="$1"
+    if [[ -z "$db_name" ]]; then
+        return 1  # Not initialized if no DB name
+    fi
+
+    # Check if database exists and base module is installed
+    python3 -c "
+import psycopg2
+import sys
+try:
+    conn = psycopg2.connect(
+        host='${HOST}',
+        port='${PORT}',
+        user='${USER}',
+        password='${PASSWORD}',
+        dbname='${db_name}'
+    )
+    cursor = conn.cursor()
+    # Check if base module is installed
+    cursor.execute(\"SELECT state FROM ir_module_module WHERE name = 'base' LIMIT 1\")
+    result = cursor.fetchone()
+    cursor.close()
+    conn.close()
+    if result and result[0] == 'installed':
+        sys.exit(0)  # Database is initialized
+    else:
+        sys.exit(1)  # Database exists but not fully initialized
+except psycopg2.errors.InvalidCatalogNameError:
+    sys.exit(1)  # Database doesn't exist
+except Exception as e:
+    sys.exit(1)  # Any other error, assume not initialized
+"
+    return $?
+}
+
 ODOO_CMD_ARGS=()
 if [[ "${INIT,,}" == "true" ]]; then
-    ODOO_CMD_ARGS+=("--init" "base")
+    # Check if database needs initialization
     if [[ -n "${DB_NAME}" ]]; then
-        ODOO_CMD_ARGS+=("-d" "${DB_NAME}")
+        if ! check_db_initialized "${DB_NAME}"; then
+            echo "Database '${DB_NAME}' not initialized or doesn't exist. Running initialization..."
+            ODOO_CMD_ARGS+=("--init" "base")
+            ODOO_CMD_ARGS+=("-d" "${DB_NAME}")
+        else
+            echo "Database '${DB_NAME}' already initialized. Skipping initialization."
+        fi
+    else
+        # If no specific DB name, always try to init (legacy behavior)
+        ODOO_CMD_ARGS+=("--init" "base")
     fi
 fi
 
