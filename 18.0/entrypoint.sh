@@ -30,7 +30,7 @@ check_config "db_password" "$PASSWORD"
 
 ODOO_CMD_ARGS=()
 if [[ "${INIT,,}" == "true" ]]; then
-    ODOO_CMD_ARGS+=("-i" "base")
+    ODOO_CMD_ARGS+=("--init" "base")
 fi
 
 case "$1" in

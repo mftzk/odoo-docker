@@ -30,7 +30,7 @@ check_config "db_password" "$PASSWORD"
 
 ODOO_CMD_ARGS=()
 if [[ "${INIT,,}" == "true" ]]; then
-    ODOO_CMD_ARGS+=("-i" "base")
+    ODOO_CMD_ARGS+=("--init" "base")
 fi
 
 case "$1" in
@@ -40,13 +40,11 @@ case "$1" in
             exec odoo "$@"
         else
             wait-for-psql.py ${DB_ARGS[@]} --timeout=30
-            echo "Starting Odoo with command: odoo ${ODOO_CMD_ARGS[@]} $@ ${DB_ARGS[@]}"
             exec odoo "${ODOO_CMD_ARGS[@]}" "$@" "${DB_ARGS[@]}"
         fi
         ;;
     -*)
         wait-for-psql.py ${DB_ARGS[@]} --timeout=30
-        echo "Starting Odoo with command: odoo ${ODOO_CMD_ARGS[@]} $@ ${DB_ARGS[@]}"
         exec odoo "${ODOO_CMD_ARGS[@]}" "$@" "${DB_ARGS[@]}"
         ;;
     *)
