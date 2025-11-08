@@ -40,12 +40,14 @@ case "$1" in
             exec odoo "$@"
         else
             wait-for-psql.py ${DB_ARGS[@]} --timeout=30
-            exec odoo "$@" "${DB_ARGS[@]}" "${ODOO_CMD_ARGS[@]}"
+            echo "Starting Odoo with command: odoo ${ODOO_CMD_ARGS[@]} $@ ${DB_ARGS[@]}"
+            exec odoo "${ODOO_CMD_ARGS[@]}" "$@" "${DB_ARGS[@]}"
         fi
         ;;
     -*)
         wait-for-psql.py ${DB_ARGS[@]} --timeout=30
-        exec odoo "$@" "${DB_ARGS[@]}" "${ODOO_CMD_ARGS[@]}"
+        echo "Starting Odoo with command: odoo ${ODOO_CMD_ARGS[@]} $@ ${DB_ARGS[@]}"
+        exec odoo "${ODOO_CMD_ARGS[@]}" "$@" "${DB_ARGS[@]}"
         ;;
     *)
         exec "$@"
